@@ -1,5 +1,9 @@
-import { Observable } from 'rxjs';
-import { AuthResponse, LoginRequest, RegisterRequest } from '../../shared/models/user.model';
+import { Observable } from "rxjs";
+import {
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+} from "../../shared/models/user.model";
 
 export abstract class AuthRepository {
   abstract login(request: LoginRequest): Observable<AuthResponse>;
@@ -8,4 +12,4 @@ export abstract class AuthRepository {
   abstract getCurrentUser(): Observable<any>;
 }
 
-export { AuthRepository }
+export {};
