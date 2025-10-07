@@ -272,7 +272,8 @@ export class AnimalDetailComponent implements OnInit {
     this.loading = true;
     this.error = '';
     
-    this.animalService.getAnimalById(id).subscribe({
+    const animalId = parseInt(id, 10);
+    this.animalService.getAnimalById(animalId).subscribe({
       next: (animal) => {
         this.animal = animal;
         this.loading = false;
@@ -285,7 +286,8 @@ export class AnimalDetailComponent implements OnInit {
     });
   }
 
-  formatDate(date: Date): string {
+  formatDate(date: Date | undefined): string {
+    if (!date) return 'N/A';
     const d = new Date(date);
     const day = d.getDate().toString().padStart(2, '0');
     const month = (d.getMonth() + 1).toString().padStart(2, '0');

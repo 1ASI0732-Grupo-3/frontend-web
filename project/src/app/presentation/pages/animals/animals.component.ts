@@ -396,7 +396,7 @@ export class AnimalsComponent implements OnInit {
     });
   }
 
-  viewAnimalDetails(animalId: string): void {
+  viewAnimalDetails(animalId: number): void {
     this.router.navigate(['/animals', animalId]);
   }
 

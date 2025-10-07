@@ -378,7 +378,7 @@ export class CampaignsComponent implements OnInit {
     });
   }
 
-  viewCampaignDetails(campaignId: string): void {
+  viewCampaignDetails(campaignId: number): void {
     this.router.navigate(['/campaigns', campaignId]);
   }
 

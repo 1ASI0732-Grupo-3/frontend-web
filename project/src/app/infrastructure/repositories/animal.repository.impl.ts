@@ -1,110 +1,173 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { delay, map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 import { AnimalRepository } from '../../domain/repositories/animal.repository';
-import { Animal, CreateAnimalRequest } from '../../shared/models/animal.model';
+import { 
+  Animal, 
+  CreateAnimalRequest,
+  Vaccination,
+  Stable 
+} from '../../shared/models/animal.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AnimalRepositoryImpl extends AnimalRepository {
-  private animals: Animal[] = [
-    {
-      id: '1',
-      name: 'Gloria',
-      breed: 'Gelbvieh',
-      weight: 510,
-      age: 4,
-      birthdate: new Date('2021-01-12'),
-      barn: 'La Bendición',
-      location: 'Chorrillos',
-      campaign: 'Vacas locas',
-      gender: 'female',
-      imageUrl: 'https://images.unsplash.com/photo-1560114928-40f1f1eb26a0?w=400&h=300&fit=crop&crop=center',
-      createdAt: new Date('2021-01-15')
-    },
-    {
-      id: '2',
-      name: 'Motomoto',
-      breed: 'Holstein',
-      weight: 510,
-      age: 4,
-      birthdate: new Date('2021-02-20'),
-      barn: 'San Miguel',
-      location: 'Lima Norte',
-      campaign: 'Vacas locas',
-      gender: 'male',
-      imageUrl: 'https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=400&h=300&fit=crop&crop=center',
-      createdAt: new Date('2021-02-25')
-    },
-    {
-      id: '3',
-      name: 'Rebeca',
-      breed: 'Holstein Friesian',
-      weight: 510,
-      age: 4,
-      birthdate: new Date('2021-03-05'),
-      barn: 'El Paraíso',
-      location: 'Callao',
-      campaign: 'Vacas locas',
-      gender: 'female',
-      imageUrl: 'https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=400&h=300&fit=crop&crop=center',
-      createdAt: new Date('2021-03-10')
-    }
-  ];
+  private readonly baseUrl = environment.apiUrl;
 
-  getAnimals(): Observable<Animal[]> {
-    return of([...this.animals]).pipe(delay(500));
+  constructor(private http: HttpClient) {
+    super();
   }
 
-  getAnimalById(id: string): Observable<Animal> {
-    const animal = this.animals.find(a => a.id === id);
-    if (!animal) {
-      throw new Error(`Animal with id ${id} not found`);
-    }
-    return of({ ...animal }).pipe(delay(300));
+  getAnimals(): Observable<Animal[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/bovines`).pipe(
+      map(apiAnimals => apiAnimals.map(apiAnimal => this.mapApiAnimalToAnimal(apiAnimal))),
+      catchError(error => {
+        console.error('Error fetching animals:', error);
+        return of([]);
+      })
+    );
+  }
+
+  getAnimalById(id: number): Observable<Animal> {
+    return this.http.get<any>(`${this.baseUrl}/bovines/${id}`).pipe(
+      map(apiAnimal => this.mapApiAnimalToAnimal(apiAnimal)),
+      catchError(error => {
+        console.error('Error fetching animal:', error);
+        throw error;
+      })
+    );
   }
 
   createAnimal(request: CreateAnimalRequest): Observable<Animal> {
-    const age = this.calculateAge(request.birthdate);
-    const newAnimal: Animal = {
-      id: Math.random().toString(36).substr(2, 9),
-      ...request,
-      age,
+    // Convert request to API format and create multipart form data
+    const formData = new FormData();
+    formData.append('Name', request.name);
+    formData.append('Gender', request.gender);
+    formData.append('BirthDate', request.birthdate.toISOString());
+    formData.append('Breed', request.breed);
+    formData.append('Location', request.location);
+    formData.append('StableId', '1'); // Default stable, will need to be dynamic
+
+    // If imageUrl is provided as base64 or file
+    if (request.imageUrl) {
+      // Handle image upload - this will be implemented in the file upload section
+      // For now, skip image upload
+    }
+
+    return this.http.post<any>(`${this.baseUrl}/bovines`, formData).pipe(
+      map((apiResponse) => {
+        // Convert API response to frontend format
+        const animal: Animal = {
+          id: apiResponse.id,
+          name: apiResponse.name,
+          breed: apiResponse.breed,
+          gender: apiResponse.gender,
+          location: apiResponse.location,
+          birthDate: apiResponse.birthDate,
+          birthdate: new Date(apiResponse.birthDate), // For component compatibility
+          bovineImg: apiResponse.bovineImg,
+          imageUrl: apiResponse.bovineImg, // For component compatibility
+          stableId: apiResponse.stableId,
+          weight: request.weight,
+          campaign: request.campaign,
+          barn: request.barn,
+          age: this.calculateAge(apiResponse.birthDate),
+          createdAt: new Date()
+        };
+        return animal;
+      }),
+      catchError(error => {
+        console.error('Error creating animal:', error);
+        throw error;
+      })
+    );
+  }
+
+  updateAnimal(id: number, updates: Partial<Animal>): Observable<Animal> {
+    const formData = new FormData();
+    
+    if (updates.name) formData.append('Name', updates.name);
+    if (updates.gender) formData.append('Gender', updates.gender);
+    if (updates.breed) formData.append('Breed', updates.breed);
+    if (updates.location) formData.append('Location', updates.location);
+    if (updates.stableId) formData.append('StableId', updates.stableId.toString());
+
+    return this.http.put<any>(`${this.baseUrl}/bovines/${id}`, formData).pipe(
+      map(apiAnimal => this.mapApiAnimalToAnimal(apiAnimal)),
+      catchError(error => {
+        console.error('Error updating animal:', error);
+        throw error;
+      })
+    );
+  }
+
+  deleteAnimal(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/bovines/${id}`).pipe(
+      catchError(error => {
+        console.error('Error deleting animal:', error);
+        throw error;
+      })
+    );
+  }
+
+  // Additional API methods
+  getAnimalsByStable(stableId: number): Observable<Animal[]> {
+    return this.http.get<Animal[]>(`${this.baseUrl}/bovines/stable/${stableId}`).pipe(
+      catchError(error => {
+        console.error('Error fetching animals by stable:', error);
+        return of([]);
+      })
+    );
+  }
+
+  getVaccinations(animalId: number): Observable<Vaccination[]> {
+    return this.http.get<Vaccination[]>(`${this.baseUrl}/vaccines/bovine/${animalId}`).pipe(
+      catchError(error => {
+        console.error('Error fetching vaccinations:', error);
+        return of([]);
+      })
+    );
+  }
+
+  getStables(): Observable<Stable[]> {
+    return this.http.get<Stable[]>(`${this.baseUrl}/stables`).pipe(
+      catchError(error => {
+        console.error('Error fetching stables:', error);
+        return of([]);
+      })
+    );
+  }
+
+  private mapApiAnimalToAnimal(apiAnimal: any): Animal {
+    return {
+      id: apiAnimal.id,
+      name: apiAnimal.name,
+      breed: apiAnimal.breed,
+      gender: apiAnimal.gender,
+      location: apiAnimal.location,
+      birthDate: apiAnimal.birthDate,
+      birthdate: new Date(apiAnimal.birthDate), // For component compatibility
+      bovineImg: apiAnimal.bovineImg,
+      imageUrl: apiAnimal.bovineImg || '', // For component compatibility
+      stableId: apiAnimal.stableId,
+      weight: 500, // Default weight
+      campaign: 'General', // Default campaign
+      barn: 'Establo General', // Default barn
+      age: this.calculateAge(apiAnimal.birthDate),
       createdAt: new Date()
     };
-
-    this.animals.push(newAnimal);
-    return of({ ...newAnimal }).pipe(delay(800));
   }
 
-  updateAnimal(id: string, updates: Partial<Animal>): Observable<Animal> {
-    const index = this.animals.findIndex(a => a.id === id);
-    if (index === -1) {
-      throw new Error(`Animal with id ${id} not found`);
-    }
-
-    this.animals[index] = { ...this.animals[index], ...updates };
-    return of({ ...this.animals[index] }).pipe(delay(500));
-  }
-
-  deleteAnimal(id: string): Observable<void> {
-    const index = this.animals.findIndex(a => a.id === id);
-    if (index === -1) {
-      throw new Error(`Animal with id ${id} not found`);
-    }
-
-    this.animals.splice(index, 1);
-    return of(void 0).pipe(delay(400));
-  }
-
-  private calculateAge(birthdate: Date): number {
+  private calculateAge(birthDate: string): number {
     const today = new Date();
-    const birthDate = new Date(birthdate);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
 
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
       age--;
     }
 

@@ -358,7 +358,8 @@ export class CampaignDetailComponent implements OnInit {
     this.loading = true;
     this.error = '';
     
-    this.campaignService.getCampaignById(id).subscribe({
+    const campaignId = parseInt(id, 10);
+    this.campaignService.getCampaignById(campaignId).subscribe({
       next: (campaign) => {
         this.campaign = campaign;
         this.loading = false;
@@ -371,7 +372,8 @@ export class CampaignDetailComponent implements OnInit {
     });
   }
 
-  formatDate(date: Date): string {
+  formatDate(date: Date | undefined): string {
+    if (!date) return 'N/A';
     const d = new Date(date);
     const day = d.getDate().toString().padStart(2, '0');
     const month = (d.getMonth() + 1).toString().padStart(2, '0');

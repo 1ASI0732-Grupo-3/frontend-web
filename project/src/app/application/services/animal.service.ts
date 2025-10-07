@@ -14,7 +14,7 @@ export class AnimalService {
     return this.animalRepository.getAnimals();
   }
 
-  getAnimalById(id: string): Observable<Animal> {
+  getAnimalById(id: number): Observable<Animal> {
     return this.animalRepository.getAnimalById(id);
   }
 
@@ -22,11 +22,11 @@ export class AnimalService {
     return this.animalRepository.createAnimal(request);
   }
 
-  updateAnimal(id: string, animal: Partial<Animal>): Observable<Animal> {
+  updateAnimal(id: number, animal: Partial<Animal>): Observable<Animal> {
     return this.animalRepository.updateAnimal(id, animal);
   }
 
-  deleteAnimal(id: string): Observable<void> {
+  deleteAnimal(id: number): Observable<void> {
     return this.animalRepository.deleteAnimal(id);
   }
 }

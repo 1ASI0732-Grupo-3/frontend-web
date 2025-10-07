@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../application/services/auth.service';
@@ -9,7 +9,7 @@ import { LoginRequest } from '../../../../shared/models/user.model';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, LogoComponent],
+  imports: [CommonModule, FormsModule, LogoComponent, RouterModule],
   template: `
     <div class="auth-container">
       <div class="auth-card fade-in">

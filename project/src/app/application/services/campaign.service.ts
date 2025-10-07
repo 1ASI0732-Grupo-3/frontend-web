@@ -14,7 +14,7 @@ export class CampaignService {
     return this.campaignRepository.getCampaigns();
   }
 
-  getCampaignById(id: string): Observable<Campaign> {
+  getCampaignById(id: number): Observable<Campaign> {
     return this.campaignRepository.getCampaignById(id);
   }
 
@@ -22,11 +22,11 @@ export class CampaignService {
     return this.campaignRepository.createCampaign(request);
   }
 
-  updateCampaign(id: string, campaign: Partial<Campaign>): Observable<Campaign> {
+  updateCampaign(id: number, campaign: Partial<Campaign>): Observable<Campaign> {
     return this.campaignRepository.updateCampaign(id, campaign);
   }
 
-  deleteCampaign(id: string): Observable<void> {
+  deleteCampaign(id: number): Observable<void> {
     return this.campaignRepository.deleteCampaign(id);
   }
 

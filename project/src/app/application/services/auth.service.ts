@@ -2,7 +2,15 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { AuthRepository } from '../../domain/repositories/auth.repository';
-import { AuthResponse, LoginRequest, RegisterRequest, User } from '../../shared/models/user.model';
+import { 
+  AuthResponse, 
+  LoginRequest, 
+  RegisterRequest, 
+  User, 
+  SignInRequest,
+  SignUpRequest,
+  UserInfo
+} from '../../shared/models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +32,10 @@ export class AuthService {
   login(request: LoginRequest): Observable<AuthResponse> {
     return this.authRepository.login(request).pipe(
       tap(response => {
-        this.currentUserSubject.next(response.user);
+        this.currentUserSubject.next(response.user || null);
+        if (response.token) {
+          localStorage.setItem('auth_token', response.token);
+        }
       })
     );
   }
@@ -32,7 +43,10 @@ export class AuthService {
   register(request: RegisterRequest): Observable<AuthResponse> {
     return this.authRepository.register(request).pipe(
       tap(response => {
-        this.currentUserSubject.next(response.user);
+        this.currentUserSubject.next(response.user || null);
+        if (response.token) {
+          localStorage.setItem('auth_token', response.token);
+        }
       })
     );
   }
@@ -41,12 +55,14 @@ export class AuthService {
     return this.authRepository.logout().pipe(
       tap(() => {
         this.currentUserSubject.next(null);
+        localStorage.removeItem('auth_token');
       })
     );
   }
 
   isAuthenticated(): boolean {
-    return this.currentUserSubject.value !== null;
+    const token = localStorage.getItem('auth_token');
+    return token !== null && this.currentUserSubject.value !== null;
   }
 
   getCurrentUser(): User | null {

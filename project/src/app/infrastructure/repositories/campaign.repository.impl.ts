@@ -1,16 +1,25 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { delay, map } from 'rxjs/operators';
+import { delay, map, catchError } from 'rxjs/operators';
 import { CampaignRepository } from '../../domain/repositories/campaign.repository';
-import { Campaign, CreateCampaignRequest, CampaignStatus } from '../../shared/models/campaign.model';
+import { Campaign, CreateCampaignRequest, CampaignStatus, CreateCampaignApiRequest } from '../../shared/models/campaign.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CampaignRepositoryImpl extends CampaignRepository {
-  private campaigns: Campaign[] = [
+  private readonly baseUrl = environment.apiUrl;
+
+  constructor(private http: HttpClient) {
+    super();
+  }
+
+  // Backup mock data for fallback
+  private mockCampaigns: Campaign[] = [
     {
-      id: '1',
+      id: 1,
       name: 'Bovine Brucellosis',
       description: 'Cattle vaccination',
       startDate: new Date('2025-05-09'),
@@ -22,7 +31,7 @@ export class CampaignRepositoryImpl extends CampaignRepository {
       updatedAt: new Date('2025-05-09')
     },
     {
-      id: '2',
+      id: 2,
       name: 'Foot-and-Mouth Disease',
       description: 'Cattle vaccination',
       startDate: new Date('2025-05-09'),
@@ -34,7 +43,7 @@ export class CampaignRepositoryImpl extends CampaignRepository {
       updatedAt: new Date('2025-05-09')
     },
     {
-      id: '3',
+      id: 3,
       name: 'Healthy Herd 2025',
       description: 'Cattle vaccination',
       startDate: new Date('2025-05-09'),
@@ -46,7 +55,7 @@ export class CampaignRepositoryImpl extends CampaignRepository {
       updatedAt: new Date('2025-05-09')
     },
     {
-      id: '4',
+      id: 4,
       name: 'Winter Deworming Campaign',
       description: 'Comprehensive deworming program',
       startDate: new Date('2025-03-15'),
@@ -60,75 +69,134 @@ export class CampaignRepositoryImpl extends CampaignRepository {
   ];
 
   getCampaigns(): Observable<Campaign[]> {
-    return of([...this.campaigns]).pipe(delay(500));
+    return this.http.get<any[]>(`${this.baseUrl}/campaigns`).pipe(
+      map(apiCampaigns => apiCampaigns.map(apiCampaign => this.mapApiCampaignToCampaign(apiCampaign))),
+      catchError(error => {
+        console.error('Error fetching campaigns:', error);
+        // Fallback to mock data in case of error
+        return of([...this.mockCampaigns]);
+      })
+    );
   }
 
-  getCampaignById(id: string): Observable<Campaign> {
-    const campaign = this.campaigns.find(c => c.id === id);
-    if (!campaign) {
-      throw new Error(`Campaign with id ${id} not found`);
-    }
-    return of({ ...campaign }).pipe(delay(300));
+  getCampaignById(id: number): Observable<Campaign> {
+    return this.http.get<any>(`${this.baseUrl}/campaigns/${id}`).pipe(
+      map(apiCampaign => this.mapApiCampaignToCampaign(apiCampaign)),
+      catchError(error => {
+        console.error('Error fetching campaign:', error);
+        throw error;
+      })
+    );
   }
 
   createCampaign(request: CreateCampaignRequest): Observable<Campaign> {
-    const newCampaign: Campaign = {
-      id: Math.random().toString(36).substr(2, 9),
-      ...request,
+    const apiRequest: CreateCampaignApiRequest = {
+      name: request.name,
+      description: request.description,
+      startDate: request.startDate.toISOString(),
+      endDate: request.endDate.toISOString(),
       status: this.determineStatus(request.startDate, request.endDate),
-      createdAt: new Date(),
-      updatedAt: new Date()
+      goals: [],
+      channels: [],
+      stableId: undefined
     };
-    
-    this.campaigns.push(newCampaign);
-    return of({ ...newCampaign }).pipe(delay(800));
+
+    return this.http.post<any>(`${this.baseUrl}/campaigns`, apiRequest).pipe(
+      map(apiResponse => this.mapApiCampaignToCampaign(apiResponse)),
+      catchError(error => {
+        console.error('Error creating campaign:', error);
+        throw error;
+      })
+    );
   }
 
-  updateCampaign(id: string, updates: Partial<Campaign>): Observable<Campaign> {
-    const index = this.campaigns.findIndex(c => c.id === id);
-    if (index === -1) {
-      throw new Error(`Campaign with id ${id} not found`);
+  updateCampaign(id: number, updates: Partial<Campaign>): Observable<Campaign> {
+    const apiUpdates: any = { ...updates };
+
+    // Convert Date fields to ISO strings if present
+    if (updates.startDate) {
+      apiUpdates.startDate = updates.startDate.toISOString();
     }
-    
-    this.campaigns[index] = { 
-      ...this.campaigns[index], 
-      ...updates,
-      updatedAt: new Date()
-    };
-    return of({ ...this.campaigns[index] }).pipe(delay(500));
+    if (updates.endDate) {
+      apiUpdates.endDate = updates.endDate.toISOString();
+    }
+
+    return this.http.put<any>(`${this.baseUrl}/campaigns/${id}`, apiUpdates).pipe(
+      map(apiCampaign => this.mapApiCampaignToCampaign(apiCampaign)),
+      catchError(error => {
+        console.error('Error updating campaign:', error);
+        throw error;
+      })
+    );
   }
 
-  deleteCampaign(id: string): Observable<void> {
-    const index = this.campaigns.findIndex(c => c.id === id);
-    if (index === -1) {
-      throw new Error(`Campaign with id ${id} not found`);
-    }
-    
-    this.campaigns.splice(index, 1);
-    return of(void 0).pipe(delay(400));
+  deleteCampaign(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/campaigns/${id}`).pipe(
+      catchError(error => {
+        console.error('Error deleting campaign:', error);
+        throw error;
+      })
+    );
   }
 
   getActiveCampaigns(): Observable<Campaign[]> {
-    const activeCampaigns = this.campaigns.filter(c => c.status === CampaignStatus.ACTIVE);
-    return of([...activeCampaigns]).pipe(delay(400));
+    return this.getCampaigns().pipe(
+      map(campaigns => campaigns.filter(c => c.status === CampaignStatus.ACTIVE))
+    );
   }
 
   getCompletedCampaigns(): Observable<Campaign[]> {
-    const completedCampaigns = this.campaigns.filter(c => c.status === CampaignStatus.COMPLETED);
-    return of([...completedCampaigns]).pipe(delay(400));
+    return this.getCampaigns().pipe(
+      map(campaigns => campaigns.filter(c => c.status === CampaignStatus.COMPLETED))
+    );
   }
 
-  private determineStatus(startDate: Date, endDate: Date): CampaignStatus {
+  // Mapping function from API format to frontend format
+  private mapApiCampaignToCampaign(apiCampaign: any): Campaign {
+    return {
+      id: apiCampaign.id,
+      name: apiCampaign.name,
+      description: apiCampaign.description,
+      startDate: new Date(apiCampaign.startDate), // Convert string to Date
+      endDate: new Date(apiCampaign.endDate), // Convert string to Date
+      status: this.mapApiStatus(apiCampaign.status),
+      targetAnimals: apiCampaign.targetAnimals || [],
+      vaccineType: apiCampaign.vaccineType,
+      createdAt: apiCampaign.createdAt ? new Date(apiCampaign.createdAt) : new Date(),
+      updatedAt: apiCampaign.updatedAt ? new Date(apiCampaign.updatedAt) : new Date(),
+      goals: apiCampaign.goals || [],
+      channels: apiCampaign.channels || [],
+      stableId: apiCampaign.stableId
+    };
+  }
+
+  // Map API status to frontend enum
+  private mapApiStatus(apiStatus: string): CampaignStatus {
+    switch (apiStatus?.toLowerCase()) {
+      case 'active':
+        return CampaignStatus.ACTIVE;
+      case 'completed':
+        return CampaignStatus.COMPLETED;
+      case 'scheduled':
+        return CampaignStatus.SCHEDULED;
+      case 'cancelled':
+        return CampaignStatus.CANCELLED;
+      default:
+        return CampaignStatus.SCHEDULED;
+    }
+  }
+
+  private determineStatus(startDate: Date, endDate: Date): string {
     const now = new Date();
     const start = new Date(startDate);
     const end = new Date(endDate);
     
     if (now < start) {
-      return CampaignStatus.SCHEDULED;
+      return 'scheduled';
     } else if (now >= start && now <= end) {
-      return CampaignStatus.ACTIVE;
+      return 'active';
     } else {
-      return CampaignStatus.COMPLETED;
+      return 'completed';
     }
   }
 }
