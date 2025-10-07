@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { CampaignService } from '../../../application/services/campaign.service';
-import { Campaign, CampaignStatus } from '../../../shared/models/campaign.model';
+import { CampaignService } from '@services/campaign.service';
+import { Campaign, CampaignStatus } from '@shared/models/campaign.model';
 
 @Component({
   selector: 'app-campaign-detail',

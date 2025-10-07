@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AnimalService } from '../../../application/services/animal.service';
-import { Animal } from '../../../shared/models/animal.model';
+import { AnimalService } from '@services/animal.service';
+import { Animal } from '@shared/models/animal.model';
 
 @Component({
   selector: 'app-animal-detail',

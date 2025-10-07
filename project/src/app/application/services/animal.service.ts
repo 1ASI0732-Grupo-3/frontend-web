@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { AnimalRepository } from '../../domain/repositories/animal.repository';
-import { Animal, CreateAnimalRequest } from '../../shared/models/animal.model';
+import { AnimalRepository } from '@domain/repositories/animal.repository';
+import { Animal, CreateAnimalRequest } from '@shared/models/animal.model';
 
 @Injectable({
   providedIn: 'root'

@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AnimalService } from '../../../application/services/animal.service';
-import { CreateAnimalRequest } from '../../../shared/models/animal.model';
+import { AnimalService } from '@services/animal.service';
+import { CreateAnimalRequest } from '@shared/models/animal.model';
 
 @Component({
   selector: 'app-add-animal',

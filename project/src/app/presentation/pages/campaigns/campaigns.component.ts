@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { CampaignService } from '../../../application/services/campaign.service';
-import { SidebarComponent } from '../../components/sidebar/sidebar.component';
-import { Campaign, CampaignStatus } from '../../../shared/models/campaign.model';
+import { CampaignService } from '@services/campaign.service';
+import { SidebarComponent } from '@components/sidebar/sidebar.component';
+import { Campaign, CampaignStatus } from '@shared/models/campaign.model';
 
 @Component({
   selector: 'app-campaigns',

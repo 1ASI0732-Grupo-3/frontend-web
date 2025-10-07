@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { AuthRepository } from '../../domain/repositories/auth.repository';
+import { AuthRepository } from '@domain/repositories/auth.repository';
 import { 
   AuthResponse, 
   LoginRequest, 
@@ -10,7 +10,7 @@ import {
   SignInRequest,
   SignUpRequest,
   UserInfo
-} from '../../shared/models/user.model';
+} from '@shared/models/user.model';
 
 @Injectable({
   providedIn: 'root'

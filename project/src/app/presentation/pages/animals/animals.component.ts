@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AnimalService } from '../../../application/services/animal.service';
-import { SidebarComponent } from '../../components/sidebar/sidebar.component';
-import { Animal } from '../../../shared/models/animal.model';
+import { AnimalService } from '@services/animal.service';
+import { SidebarComponent } from '@components/sidebar/sidebar.component';
+import { Animal } from '@shared/models/animal.model';
 
 @Component({
   selector: 'app-animals',

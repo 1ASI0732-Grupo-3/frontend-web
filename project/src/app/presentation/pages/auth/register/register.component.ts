@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../../application/services/auth.service';
-import { LogoComponent } from '../../../components/logo/logo.component';
-import { RegisterRequest } from '../../../../shared/models/user.model';
+import { AuthService } from '@services/auth.service';
+import { LogoComponent } from '@components/logo/logo.component';
+import { RegisterRequest } from '@shared/models/user.model';
 
 @Component({
   selector: 'app-register',

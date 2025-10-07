@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { AnimalRepository } from '../../domain/repositories/animal.repository';
+import { AnimalRepository } from '@domain/repositories/animal.repository';
 import { 
   Animal, 
   CreateAnimalRequest,
   Vaccination,
   Stable 
-} from '../../shared/models/animal.model';
-import { environment } from '../../../environments/environment';
+} from '@shared/models/animal.model';
+import { environment } from '@environments/environment';
 
 @Injectable({
   providedIn: 'root'

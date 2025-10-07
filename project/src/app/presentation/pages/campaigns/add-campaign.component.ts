@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CampaignService } from '../../../application/services/campaign.service';
-import { CreateCampaignRequest } from '../../../shared/models/campaign.model';
+import { CampaignService } from '@services/campaign.service';
+import { CreateCampaignRequest } from '@shared/models/campaign.model';
 
 @Component({
   selector: 'app-add-campaign',
