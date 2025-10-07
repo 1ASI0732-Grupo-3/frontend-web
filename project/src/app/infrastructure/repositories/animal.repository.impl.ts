@@ -73,7 +73,7 @@ export class AnimalRepositoryImpl extends AnimalRepository {
       age,
       createdAt: new Date()
     };
-    
+
     this.animals.push(newAnimal);
     return of({ ...newAnimal }).pipe(delay(800));
   }
@@ -83,7 +83,7 @@ export class AnimalRepositoryImpl extends AnimalRepository {
     if (index === -1) {
       throw new Error(`Animal with id ${id} not found`);
     }
-    
+
     this.animals[index] = { ...this.animals[index], ...updates };
     return of({ ...this.animals[index] }).pipe(delay(500));
   }
@@ -93,7 +93,7 @@ export class AnimalRepositoryImpl extends AnimalRepository {
     if (index === -1) {
       throw new Error(`Animal with id ${id} not found`);
     }
-    
+
     this.animals.splice(index, 1);
     return of(void 0).pipe(delay(400));
   }
@@ -103,11 +103,11 @@ export class AnimalRepositoryImpl extends AnimalRepository {
     const birthDate = new Date(birthdate);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-    
+
     return Math.max(0, age);
   }
 }
