@@ -52,17 +52,47 @@ export const routes: Routes = [
   },
   {
     path: 'animals',
-    loadComponent: () => import('./presentation/pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    loadComponent: () => import('./presentation/pages/animals/animals.component').then(m => m.AnimalsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'animals/new',
+    loadComponent: () => import('./presentation/pages/animals/add-animal.component').then(m => m.AddAnimalComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'animals/:id',
+    loadComponent: () => import('./presentation/pages/animals/animal-detail.component').then(m => m.AnimalDetailComponent),
     canActivate: [authGuard]
   },
   {
     path: 'campaigns',
-    loadComponent: () => import('./presentation/pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    loadComponent: () => import('./presentation/pages/campaigns/campaigns.component').then(m => m.CampaignsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'campaigns/new',
+    loadComponent: () => import('./presentation/pages/campaigns/add-campaign.component').then(m => m.AddCampaignComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'campaigns/:id',
+    loadComponent: () => import('./presentation/pages/campaigns/campaign-detail.component').then(m => m.CampaignDetailComponent),
     canActivate: [authGuard]
   },
   {
     path: 'inventory',
-    loadComponent: () => import('./presentation/pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    loadComponent: () => import('./presentation/pages/inventory/inventory.component').then(m => m.InventoryComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'inventory/products',
+    loadComponent: () => import('./presentation/pages/inventory/inventory-products.component').then(m => m.InventoryProductsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'inventory/add-product',
+    loadComponent: () => import('./presentation/pages/inventory/add-inventory-product.component').then(m => m.AddInventoryProductComponent),
     canActivate: [authGuard]
   },
   {

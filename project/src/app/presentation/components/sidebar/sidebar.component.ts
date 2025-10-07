@@ -83,6 +83,7 @@ import { AuthService } from '../../../application/services/auth.service';
       top: 0;
       left: 0;
       height: 100vh;
+      height: 100dvh; /* Dynamic viewport height for mobile */
       width: 100%;
       z-index: 1000;
       pointer-events: none;
@@ -93,7 +94,7 @@ import { AuthService } from '../../../application/services/auth.service';
     }
 
     .sidebar-overlay {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       right: 0;
@@ -103,16 +104,18 @@ import { AuthService } from '../../../application/services/auth.service';
     }
 
     .sidebar {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       height: 100vh;
+      height: 100dvh; /* Dynamic viewport height for mobile */
       width: 280px;
       background: var(--dark-green);
       color: var(--white);
       transform: translateX(-100%);
       transition: transform 0.3s ease;
       z-index: 2;
+      overflow-y: auto; /* Allow scroll if content is too tall */
     }
 
     .sidebar.open {
@@ -189,8 +192,11 @@ import { AuthService } from '../../../application/services/auth.service';
     /* Desktop styles */
     @media (min-width: 1024px) {
       .sidebar-wrapper {
-        position: relative;
+        position: sticky;
+        top: 0;
         width: 280px;
+        height: 100vh;
+        height: 100dvh;
         flex-shrink: 0;
         pointer-events: all;
       }
@@ -200,8 +206,12 @@ import { AuthService } from '../../../application/services/auth.service';
       }
 
       .sidebar {
-        position: relative;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        height: 100dvh;
         transform: translateX(0);
+        overflow-y: auto;
       }
     }
   `]

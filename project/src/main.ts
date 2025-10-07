@@ -9,9 +9,15 @@ import { routes } from './app/app.routes';
 import { AuthRepository } from './app/domain/repositories/auth.repository';
 import { DashboardRepository } from './app/domain/repositories/dashboard.repository';
 import { PlansRepository } from './app/domain/repositories/plans.repository';
+import { AnimalRepository } from './app/domain/repositories/animal.repository';
+import { CampaignRepository } from './app/domain/repositories/campaign.repository';
+import { InventoryRepository } from './app/domain/repositories/inventory.repository';
 import { AuthRepositoryImpl } from './app/infrastructure/repositories/auth.repository.impl';
 import { DashboardRepositoryImpl } from './app/infrastructure/repositories/dashboard.repository.impl';
 import { PlansRepositoryImpl } from './app/infrastructure/repositories/plans.repository.impl';
+import { AnimalRepositoryImpl } from './app/infrastructure/repositories/animal.repository.impl';
+import { CampaignRepositoryImpl } from './app/infrastructure/repositories/campaign.repository.impl';
+import { InventoryRepositoryImpl } from './app/infrastructure/repositories/inventory.repository.impl';
 
 @Component({
   selector: 'app-root',
@@ -26,6 +32,9 @@ bootstrapApplication(App, {
     provideRouter(routes),
     { provide: AuthRepository, useClass: AuthRepositoryImpl },
     { provide: DashboardRepository, useClass: DashboardRepositoryImpl },
-    { provide: PlansRepository, useClass: PlansRepositoryImpl }
+    { provide: PlansRepository, useClass: PlansRepositoryImpl },
+    { provide: AnimalRepository, useClass: AnimalRepositoryImpl },
+    { provide: CampaignRepository, useClass: CampaignRepositoryImpl },
+    { provide: InventoryRepository, useClass: InventoryRepositoryImpl }
   ]
 });
