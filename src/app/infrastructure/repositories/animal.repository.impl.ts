@@ -9,7 +9,7 @@ import {
   Vaccination,
   Stable 
 } from '@shared/models/animal.model';
-import { environment } from '@app/enviroments/enviroment';
+import { environment } from '../../../enviroments/enviroment';
 
 @Injectable({
   providedIn: 'root'

@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { delay, map, catchError } from 'rxjs/operators';
 import { CampaignRepository } from '@domain/repositories/campaign.repository';
 import { Campaign, CreateCampaignRequest, CampaignStatus, CreateCampaignApiRequest } from '@shared/models/campaign.model';
-import {environment} from "@app/enviroments/enviroment";
+import {environment} from "../../../enviroments/enviroment";
 
 @Injectable({
   providedIn: 'root'

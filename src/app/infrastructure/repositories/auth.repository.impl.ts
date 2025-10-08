@@ -13,7 +13,7 @@ import {
   UserInfo,
   UserRole
 } from '@shared/models/user.model';
-import { environment } from '@app/enviroments/enviroment';
+import { environment } from '../../../enviroments/enviroment';
 
 @Injectable({
   providedIn: 'root'
