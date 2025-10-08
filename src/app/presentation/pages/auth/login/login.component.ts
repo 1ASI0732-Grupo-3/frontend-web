@@ -3,78 +3,103 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@services/auth.service';
-import { LogoComponent } from '@components/logo/logo.component';
 import { LoginRequest } from '@shared/models/user.model';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, LogoComponent, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="auth-container">
-      <div class="auth-card fade-in">
-        <app-logo></app-logo>
-        
-        <h1 class="auth-title">Sign In</h1>
-        
-        <div class="social-buttons">
-          <button class="btn btn-google" (click)="loginWithProvider('google')">
-            <svg width="20" height="20" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Gmail
-          </button>
-          <button class="btn btn-outlook" (click)="loginWithProvider('outlook')">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M7.8 12c0-1.68 1.1-3.2 2.8-3.2s2.8 1.52 2.8 3.2-1.1 3.2-2.8 3.2S7.8 13.68 7.8 12zM22 5v14c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2z"/>
-            </svg>
-            Outlook
-          </button>
+      <!-- Left Panel - Branding -->
+      <div class="auth-left-panel">
+        <div class="branding-content">
+          <h1 class="brand-title">Welcome to VacApp</h1>
+          <p class="brand-subtitle">Your comprehensive veterinary management solution</p>
+          <div class="features-list">
+            <div class="feature-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Manage your livestock efficiently</span>
+            </div>
+            <div class="feature-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Track vaccination campaigns</span>
+            </div>
+            <div class="feature-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span>Monitor inventory levels</span>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-          <div class="form-group">
-            <input 
-              type="email" 
-              class="form-input" 
-              placeholder="Email" 
-              [(ngModel)]="loginRequest.email"
-              name="email"
-              required>
+      <!-- Right Panel - Login Form -->
+      <div class="auth-right-panel">
+        <div class="auth-form-container fade-in">
+          <div class="form-header">
+            <h2 class="form-title">Sign In</h2>
+            <p class="form-subtitle">Enter your credentials to access your account</p>
           </div>
           
-          <div class="form-group">
-            <input 
-              type="password" 
-              class="form-input" 
-              placeholder="Password" 
-              [(ngModel)]="loginRequest.password"
-              name="password"
-              required>
-          </div>
 
-          <button 
-            type="submit" 
-            class="btn btn-primary auth-submit"
-            [disabled]="loading || loginForm.invalid">
-            <span *ngIf="loading">Signing In...</span>
-            <span *ngIf="!loading">Sign In</span>
-          </button>
-        </form>
 
-        <div class="auth-links">
-          <a href="#" class="forgot-link" (click)="forgotPassword($event)">Forgot my password</a>
+          <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+            <div class="form-group">
+              <label for="email" class="form-label">Email Address</label>
+              <input 
+                id="email"
+                type="email" 
+                class="form-input" 
+                placeholder="Enter your email" 
+                [(ngModel)]="loginRequest.email"
+                name="email"
+                required>
+            </div>
+            
+            <div class="form-group">
+              <label for="password" class="form-label">Password</label>
+              <input 
+                id="password"
+                type="password" 
+                class="form-input" 
+                placeholder="Enter your password" 
+                [(ngModel)]="loginRequest.password"
+                name="password"
+                required>
+            </div>
+
+            <div class="form-options">
+              <label class="checkbox-container">
+                <input type="checkbox" class="checkbox">
+                <span class="checkmark"></span>
+                Remember me
+              </label>
+              <a href="#" class="forgot-link" (click)="forgotPassword($event)">Forgot password?</a>
+            </div>
+
+            <button 
+              type="submit" 
+              class="btn btn-primary auth-submit"
+              [disabled]="loading || loginForm.invalid">
+              <span *ngIf="loading">Signing In...</span>
+              <span *ngIf="!loading">Sign In</span>
+            </button>
+          </form>
+
           <div class="auth-switch">
             Don't have an account? 
             <a routerLink="/auth/register" class="switch-link">Sign Up</a>
           </div>
-        </div>
 
-        <div class="error-message" *ngIf="errorMessage">
-          {{ errorMessage }}
+          <div class="error-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
         </div>
       </div>
     </div>
@@ -82,73 +107,205 @@ import { LoginRequest } from '@shared/models/user.model';
   styles: [`
     .auth-container {
       min-height: 100vh;
+      display: flex;
+      background: var(--white);
+    }
+
+    .auth-left-panel {
+      flex: 1;
       background: linear-gradient(135deg, var(--dark-green) 0%, #064a32 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 60px 40px;
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
     }
 
-    .auth-card {
-      background: var(--white);
-      border-radius: 20px;
-      padding: 40px;
+    .auth-left-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.05"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.05"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.03"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grain)"/></svg>');
+      pointer-events: none;
+    }
+
+    .branding-content {
       max-width: 400px;
-      width: 100%;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      z-index: 1;
+      position: relative;
     }
 
-    .auth-title {
+    .brand-title {
+      font-size: 42px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      font-size: 18px;
+      opacity: 0.9;
+      margin-bottom: 40px;
+      line-height: 1.5;
+    }
+
+    .features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-align: left;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+      opacity: 0.95;
+    }
+
+    .feature-item svg {
+      flex-shrink: 0;
+      color: var(--light-beige);
+    }
+
+    .auth-right-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 40px;
+      background: #fafafa;
+    }
+
+    .auth-form-container {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 48px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e5e5e5;
+    }
+
+    .form-header {
       text-align: center;
-      font-size: 32px;
+      margin-bottom: 32px;
+    }
+
+    .form-title {
+      font-size: 28px;
       font-weight: bold;
       color: var(--text-dark);
-      margin-bottom: 30px;
+      margin-bottom: 8px;
     }
 
-    .social-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-bottom: 30px;
+    .form-subtitle {
+      font-size: 16px;
+      color: #666;
+      margin: 0;
     }
 
-    .auth-submit {
+
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .form-input {
       width: 100%;
-      padding: 16px;
-      font-size: 18px;
-      font-weight: bold;
-      margin: 20px 0;
+      padding: 12px 16px;
+      border: 2px solid #e5e5e5;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.2s ease;
+      background: var(--white);
+      box-sizing: border-box;
     }
 
-    .auth-submit:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
+    .form-input:focus {
+      outline: none;
+      border-color: var(--dark-green);
+      box-shadow: 0 0 0 3px rgba(6, 74, 50, 0.1);
     }
 
-    .auth-links {
-      text-align: center;
-      margin-top: 20px;
+    .form-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      font-size: 14px;
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .checkbox {
+      width: 16px;
+      height: 16px;
+      margin: 0;
     }
 
     .forgot-link {
       color: var(--dark-green);
       text-decoration: none;
-      font-style: italic;
-      font-size: 14px;
-      margin-bottom: 15px;
-      display: block;
+      font-weight: 500;
     }
 
     .forgot-link:hover {
       text-decoration: underline;
     }
 
+    .auth-submit {
+      width: 100%;
+      padding: 14px;
+      background: var(--dark-green);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 24px;
+    }
+
+    .auth-submit:hover:not(:disabled) {
+      background: #064a32;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(6, 74, 50, 0.3);
+    }
+
+    .auth-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
     .auth-switch {
-      font-size: 14px;
+      text-align: center;
+      font-size: 15px;
       color: #666;
-      margin-top: 15px;
     }
 
     .switch-link {
@@ -164,20 +321,53 @@ import { LoginRequest } from '@shared/models/user.model';
     .error-message {
       background: #ffebee;
       color: #c62828;
-      padding: 12px;
+      padding: 12px 16px;
       border-radius: 8px;
-      margin-top: 15px;
+      margin-top: 16px;
       text-align: center;
       font-size: 14px;
+      border: 1px solid #ffcdd2;
     }
 
-    @media (max-width: 480px) {
-      .auth-card {
+    @media (max-width: 1024px) {
+      .auth-container {
+        flex-direction: column;
+      }
+      
+      .auth-left-panel {
+        min-height: 300px;
+        padding: 40px 20px;
+      }
+      
+      .auth-right-panel {
+        padding: 40px 20px;
+      }
+      
+      .auth-form-container {
+        padding: 32px 24px;
+      }
+      
+      .brand-title {
+        font-size: 32px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .auth-left-panel {
+        min-height: 200px;
         padding: 30px 20px;
       }
       
-      .social-buttons {
-        grid-template-columns: 1fr;
+      .brand-title {
+        font-size: 28px;
+      }
+      
+      .brand-subtitle {
+        font-size: 16px;
+      }
+      
+      .features-list {
+        display: none;
       }
     }
   `]
@@ -212,10 +402,6 @@ export class LoginComponent {
         this.errorMessage = error.message || 'Login failed. Please try again.';
       }
     });
-  }
-
-  loginWithProvider(provider: 'google' | 'outlook'): void {
-    console.log(`Login with ${provider} - Not implemented in demo`);
   }
 
   forgotPassword(event: Event): void {
