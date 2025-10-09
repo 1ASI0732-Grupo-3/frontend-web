@@ -5,6 +5,7 @@ import { AuthService } from '@services/auth.service';
 import { SidebarComponent } from '@components/sidebar/sidebar.component';
 import { DashboardStats, UpcomingEvent } from '@shared/models/dashboard.model';
 import { User } from '@shared/models/user.model';
+import { ApiTestService } from '../../../infrastructure/services/api-test.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -30,6 +31,12 @@ import { User } from '@shared/models/user.model';
               Welcome<br>
               <span class="user-name" *ngIf="currentUser">{{ currentUser.name }}!</span>
             </h1>
+            <!-- Temporary API Test Button -->
+            <button 
+              (click)="testApiConnectivity()" 
+              style="margin-top: 20px; padding: 10px 20px; background: #ff6b6b; color: white; border: none; border-radius: 5px; cursor: pointer;">
+              🔍 Test API Connectivity (Check Console)
+            </button>
           </div>
 
           <div class="stats-grid" *ngIf="stats">
@@ -319,7 +326,8 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private dashboardService: DashboardService,
-    private authService: AuthService
+    private authService: AuthService,
+    private apiTestService: ApiTestService
   ) {}
 
   ngOnInit(): void {
@@ -341,5 +349,10 @@ export class DashboardComponent implements OnInit {
 
   toggleSidebar(open: boolean): void {
     this.sidebarOpen = open;
+  }
+
+  testApiConnectivity(): void {
+    console.log('Testing API connectivity...');
+    this.apiTestService.testEndpoints();
   }
 }

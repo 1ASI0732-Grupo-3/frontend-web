@@ -22,7 +22,7 @@ export class AnimalRepositoryImpl extends AnimalRepository {
   }
 
   getAnimals(): Observable<Animal[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/bovines`).pipe(
+    return this.http.get<any[]>(`${this.baseUrl}/animals`).pipe(
       map(apiAnimals => apiAnimals.map(apiAnimal => this.mapApiAnimalToAnimal(apiAnimal))),
       catchError(error => {
         console.error('Error fetching animals:', error);
@@ -32,7 +32,7 @@ export class AnimalRepositoryImpl extends AnimalRepository {
   }
 
   getAnimalById(id: number): Observable<Animal> {
-    return this.http.get<any>(`${this.baseUrl}/bovines/${id}`).pipe(
+    return this.http.get<any>(`${this.baseUrl}/animals/${id}`).pipe(
       map(apiAnimal => this.mapApiAnimalToAnimal(apiAnimal)),
       catchError(error => {
         console.error('Error fetching animal:', error);
@@ -57,7 +57,7 @@ export class AnimalRepositoryImpl extends AnimalRepository {
       // For now, skip image upload
     }
 
-    return this.http.post<any>(`${this.baseUrl}/bovines`, formData).pipe(
+    return this.http.post<any>(`${this.baseUrl}/animals`, formData).pipe(
       map((apiResponse) => {
         // Convert API response to frontend format
         const animal: Animal = {
@@ -95,7 +95,7 @@ export class AnimalRepositoryImpl extends AnimalRepository {
     if (updates.location) formData.append('Location', updates.location);
     if (updates.stableId) formData.append('StableId', updates.stableId.toString());
 
-    return this.http.put<any>(`${this.baseUrl}/bovines/${id}`, formData).pipe(
+    return this.http.put<any>(`${this.baseUrl}/animals/${id}`, formData).pipe(
       map(apiAnimal => this.mapApiAnimalToAnimal(apiAnimal)),
       catchError(error => {
         console.error('Error updating animal:', error);
@@ -105,7 +105,7 @@ export class AnimalRepositoryImpl extends AnimalRepository {
   }
 
   deleteAnimal(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/bovines/${id}`).pipe(
+    return this.http.delete<void>(`${this.baseUrl}/animals/${id}`).pipe(
       catchError(error => {
         console.error('Error deleting animal:', error);
         throw error;
@@ -115,7 +115,7 @@ export class AnimalRepositoryImpl extends AnimalRepository {
 
   // Additional API methods
   getAnimalsByStable(stableId: number): Observable<Animal[]> {
-    return this.http.get<Animal[]>(`${this.baseUrl}/bovines/stable/${stableId}`).pipe(
+    return this.http.get<Animal[]>(`${this.baseUrl}/api/animals/stable/${stableId}`).pipe(
       catchError(error => {
         console.error('Error fetching animals by stable:', error);
         return of([]);
@@ -124,7 +124,7 @@ export class AnimalRepositoryImpl extends AnimalRepository {
   }
 
   getVaccinations(animalId: number): Observable<Vaccination[]> {
-    return this.http.get<Vaccination[]>(`${this.baseUrl}/vaccines/bovine/${animalId}`).pipe(
+    return this.http.get<Vaccination[]>(`${this.baseUrl}/api/vaccinations/animal/${animalId}`).pipe(
       catchError(error => {
         console.error('Error fetching vaccinations:', error);
         return of([]);
@@ -133,7 +133,7 @@ export class AnimalRepositoryImpl extends AnimalRepository {
   }
 
   getStables(): Observable<Stable[]> {
-    return this.http.get<Stable[]>(`${this.baseUrl}/stables`).pipe(
+    return this.http.get<Stable[]>(`${this.baseUrl}/api/stables`).pipe(
       catchError(error => {
         console.error('Error fetching stables:', error);
         return of([]);

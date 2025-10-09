@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { routes } from '@app/app.routes';
+import { AuthInterceptor } from '@app/infrastructure/interceptors/auth.interceptor';
 
 // Repository providers
 import { AuthRepository } from '@domain/repositories/auth.repository';
@@ -31,7 +32,7 @@ export class App {}
 bootstrapApplication(App, {
   providers: [
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([AuthInterceptor])),
     { provide: AuthRepository, useClass: AuthRepositoryImpl },
     { provide: DashboardRepository, useClass: DashboardRepositoryImpl },
     { provide: PlansRepository, useClass: PlansRepositoryImpl },
