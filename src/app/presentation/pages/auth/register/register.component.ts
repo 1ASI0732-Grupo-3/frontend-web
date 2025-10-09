@@ -2,8 +2,9 @@ import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '@services/auth.service';
-import { RegisterRequest } from '@shared/models/user.model';
+import { AuthService } from '../../../../application/services/auth.service';
+import { TokenService } from '../../../../application/services/token.service';
+import { RegisterRequest } from '../../../../shared/models/user.model';
 
 @Component({
   selector: 'app-register',
@@ -57,14 +58,14 @@ import { RegisterRequest } from '@shared/models/user.model';
 
           <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
             <div class="form-group">
-              <label for="name" class="form-label">Full Name</label>
+              <label for="username" class="form-label">Username</label>
               <input 
-                id="name"
+                id="username"
                 type="text" 
                 class="form-input" 
-                placeholder="Enter your full name" 
-                [(ngModel)]="registerRequest.name"
-                name="name"
+                placeholder="Enter your username" 
+                [(ngModel)]="registerRequest.username"
+                name="username"
                 required>
             </div>
             
@@ -82,14 +83,29 @@ import { RegisterRequest } from '@shared/models/user.model';
             
             <div class="form-group">
               <label for="password" class="form-label">Password</label>
-              <input 
-                id="password"
-                type="password" 
-                class="form-input" 
-                placeholder="Create a strong password" 
-                [(ngModel)]="registerRequest.password"
-                name="password"
-                required>
+              <div class="password-wrapper">
+                <input 
+                  id="password"
+                  [type]="showPassword ? 'text' : 'password'"
+                  class="form-input" 
+                  placeholder="Create a strong password" 
+                  [(ngModel)]="registerRequest.password"
+                  name="password"
+                  required
+                  minlength="8">
+                <button
+                  type="button"
+                  class="toggle-password"
+                  (click)="togglePasswordVisibility()">
+                  <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 11-4.243-4.243m4.242 4.242L9.88 9.88" />
+                  </svg>
+                </button>
+              </div>
               <div class="password-hint">
                 Must be at least 8 characters long
               </div>
@@ -263,6 +279,28 @@ import { RegisterRequest } from '@shared/models/user.model';
       box-shadow: 0 0 0 3px rgba(6, 74, 50, 0.1);
     }
 
+    .password-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      color: var(--dark-green);
+      transition: color 0.2s ease;
+    }
+
+    .toggle-password:hover {
+      color: #064a32;
+    }
+
     .password-hint {
       font-size: 13px;
       color: #666;
@@ -399,17 +437,19 @@ import { RegisterRequest } from '@shared/models/user.model';
 })
 export class RegisterComponent {
   registerRequest: RegisterRequest = {
-    name: '',
+    username: '', // Cambiado de name a username
     email: '',
     password: ''
   };
   
   loading = false;
   errorMessage = '';
+  showPassword = false;
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private tokenService: TokenService // Agregado TokenService
   ) {}
 
   onSubmit(): void {
@@ -419,17 +459,23 @@ export class RegisterComponent {
     this.errorMessage = '';
     
     this.authService.register(this.registerRequest).subscribe({
-      next: (response) => {
+      next: (response: any) => {
+        // Guardar token y usuario después del registro exitoso
+        this.tokenService.setToken(response.token);
+        this.tokenService.setUser(response.user);
+
         this.loading = false;
-        this.router.navigate(['/plans']);
+        this.router.navigate(['/dashboard']); // Ir directamente al dashboard
       },
-      error: (error) => {
+      error: (error: any) => {
         this.loading = false;
         this.errorMessage = error.message || 'Registration failed. Please try again.';
       }
     });
   }
 
-
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
 
 }

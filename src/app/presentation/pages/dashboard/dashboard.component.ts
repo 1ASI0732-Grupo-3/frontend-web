@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DashboardService } from '@services/dashboard.service';
-import { AuthService } from '@services/auth.service';
-import { SidebarComponent } from '@components/sidebar/sidebar.component';
-import { DashboardStats, UpcomingEvent } from '@shared/models/dashboard.model';
-import { User } from '@shared/models/user.model';
-import { ApiTestService } from '../../../infrastructure/services/api-test.service';
+import { DashboardService } from '../../../application/services/dashboard.service';
+import { AuthService } from '../../../application/services/auth.service';
+import { SidebarComponent } from '../../components/sidebar/sidebar.component';
+import { DashboardStats, UpcomingEvent } from '../../../shared/models/dashboard.model';
+import { User } from '../../../shared/models/user.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,12 +30,6 @@ import { ApiTestService } from '../../../infrastructure/services/api-test.servic
               Welcome<br>
               <span class="user-name" *ngIf="currentUser">{{ currentUser.name }}!</span>
             </h1>
-            <!-- Temporary API Test Button -->
-            <button 
-              (click)="testApiConnectivity()" 
-              style="margin-top: 20px; padding: 10px 20px; background: #ff6b6b; color: white; border: none; border-radius: 5px; cursor: pointer;">
-              🔍 Test API Connectivity (Check Console)
-            </button>
           </div>
 
           <div class="stats-grid" *ngIf="stats">
@@ -48,24 +41,36 @@ import { ApiTestService } from '../../../infrastructure/services/api-test.servic
             <div class="stats-row">
               <div class="stats-card">
                 <div class="stats-number">{{ stats.campaigns }}</div>
-                <div class="stats-label">Campaigns</div>
+                <div class="stats-label">Total Campaigns</div>
               </div>
               
               <div class="stats-card">
-                <div class="stats-number">{{ stats.employees }}</div>
-                <div class="stats-label">Employees</div>
+                <div class="stats-number">{{ stats.activeCampaigns }}</div>
+                <div class="stats-label">Active Campaigns</div>
               </div>
             </div>
 
             <div class="stats-row">
               <div class="stats-card">
-                <div class="stats-number">{{ stats.vaccinesAboutToExpire }}</div>
-                <div class="stats-label">Vaccines about to expire</div>
+                <div class="stats-number">{{ stats.employees }}</div>
+                <div class="stats-label">Staff Members</div>
               </div>
               
               <div class="stats-card">
-                <div class="stats-number">{{ stats.activeCampaigns }}</div>
-                <div class="stats-label">Campaigns</div>
+                <div class="stats-number">{{ stats.totalStables }}</div>
+                <div class="stats-label">Stables</div>
+              </div>
+            </div>
+
+            <div class="stats-row">
+              <div class="stats-card">
+                <div class="stats-number">{{ stats.totalVaccines }}</div>
+                <div class="stats-label">Total Vaccines</div>
+              </div>
+              
+              <div class="stats-card">
+                <div class="stats-number">{{ stats.vaccinesAboutToExpire }}</div>
+                <div class="stats-label">Vaccines Expiring</div>
               </div>
             </div>
           </div>
@@ -326,8 +331,7 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private dashboardService: DashboardService,
-    private authService: AuthService,
-    private apiTestService: ApiTestService
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -349,10 +353,5 @@ export class DashboardComponent implements OnInit {
 
   toggleSidebar(open: boolean): void {
     this.sidebarOpen = open;
-  }
-
-  testApiConnectivity(): void {
-    console.log('Testing API connectivity...');
-    this.apiTestService.testEndpoints();
   }
 }

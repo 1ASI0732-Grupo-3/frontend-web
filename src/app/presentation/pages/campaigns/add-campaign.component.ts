@@ -348,7 +348,8 @@ export class AddCampaignComponent {
     startDate: new Date(),
     endDate: new Date(),
     targetAnimals: [],
-    vaccineType: ''
+    vaccineType: '',
+    stableId: 1 // Agregado stableId requerido
   };
 
   startDateString = '';

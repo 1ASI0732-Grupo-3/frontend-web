@@ -4,17 +4,13 @@ export interface DashboardStats {
   employees: number;
   vaccinesAboutToExpire: number;
   activeCampaigns: number;
+  totalStables: number;
+  totalVaccines: number;
 }
 
 export interface UpcomingEvent {
-  id: string;
+  id: number;
   title: string;
   date: string;
-  type: EventType;
-}
-
-export enum EventType {
-  VACCINATION = 'vaccination',
-  DEWORMING = 'deworming',
-  CAMPAIGN = 'campaign'
+  type?: string; // 'campaign-start', 'campaign-end', etc.
 }

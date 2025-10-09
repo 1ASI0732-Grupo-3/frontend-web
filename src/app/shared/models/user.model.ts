@@ -16,7 +16,7 @@ export interface UserInfo {
   totalStables: number;
 }
 
-// API Request Models
+// API Request Models para coincidir exactamente con tu backend
 export interface SignUpRequest {
   username: string;
   password: string;
@@ -25,13 +25,21 @@ export interface SignUpRequest {
 
 export interface SignInRequest {
   email?: string;
-  userName?: string;
+  userName: string; // Cambiado de userName? a userName (requerido)
   password: string;
 }
 
-export interface UpdateUserRequest {
-  username?: string;
-  email?: string;
+// Request models para los componentes
+export interface LoginRequest {
+  userName: string; // Cambiado de email a userName
+  password: string;
+}
+
+export interface RegisterRequest {
+  username: string; // Para el backend
+  email: string;
+  password: string;
+  name?: string; // Para compatibilidad con componentes
 }
 
 // Auth Response
@@ -44,15 +52,4 @@ export enum UserRole {
   ADMIN = 'admin',
   VETERINARIAN = 'veterinarian',
   ASSISTANT = 'assistant'
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface RegisterRequest {
-  name: string;
-  email: string;
-  password: string;
 }

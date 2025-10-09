@@ -1,42 +1,39 @@
 // Unified Campaign interface compatible with components and API
 export interface Campaign {
-  id: number; // API uses number
+  id?: number; // API uses number, optional for creation
   name: string;
   description: string;
   startDate: Date; // Component compatible
   endDate: Date; // Component compatible
   status: CampaignStatus;
-  targetAnimals?: string[]; // Component compatible
-  vaccineType?: string; // Component compatible
-  createdAt?: Date; // Component compatible
-  updatedAt?: Date; // Component compatible
   goals?: Goal[]; // API format
   channels?: Channel[]; // API format
-  stableId?: number | null; // API format
+  stableId: number; // Required by API
+  createdAt?: Date; // Component compatible
+  updatedAt?: Date; // Component compatible
+  vaccineType?: string; // Added for component compatibility
+  targetAnimals?: string[]; // Added for component compatibility
 }
 
 // Supporting models for campaigns
 export interface Goal {
-  id: number;
+  id?: number; // Optional for creation
+  title: string; // Changed from description to title
   description: string;
-  metric: string;
-  targetValue: number;
-  currentValue: number;
-  campaignId: number;
 }
 
 export interface Channel {
-  id: number;
+  id?: number; // Optional for creation
   type: string;
   details: string;
-  campaignId: number;
 }
 
 export enum CampaignStatus {
-  ACTIVE = 'active',
-  COMPLETED = 'completed',
-  SCHEDULED = 'scheduled',
-  CANCELLED = 'cancelled'
+  DRAFT = 'Draft',
+  ACTIVE = 'Active',
+  COMPLETED = 'Completed',
+  CANCELLED = 'Cancelled',
+  SCHEDULED = 'Scheduled' // Added missing SCHEDULED status
 }
 
 // Request Model for creating campaigns
@@ -45,8 +42,12 @@ export interface CreateCampaignRequest {
   description: string;
   startDate: Date; // Component compatible
   endDate: Date; // Component compatible
-  targetAnimals?: string[]; // Component compatible
-  vaccineType?: string; // Component compatible
+  status?: string; // Optional, defaults to Draft
+  goals?: Goal[];
+  channels?: Channel[];
+  stableId: number; // Required
+  vaccineType?: string; // Added for component compatibility
+  targetAnimals?: string[]; // Added for component compatibility
 }
 
 // API-specific request models (for internal use)
@@ -55,17 +56,15 @@ export interface CreateCampaignApiRequest {
   description: string;
   startDate: string; // ISO date string
   endDate: string; // ISO date string
-  status: string;
-  goals?: CreateGoalRequest[];
-  channels?: CreateChannelRequest[];
-  stableId?: number;
+  status: string; // Draft, Active, etc.
+  goals?: Goal[];
+  channels?: Channel[];
+  stableId: number; // Required by API
 }
 
 export interface CreateGoalRequest {
+  title: string; // Changed to title
   description: string;
-  metric: string;
-  targetValue: number;
-  currentValue: number;
 }
 
 export interface CreateChannelRequest {
@@ -79,10 +78,8 @@ export interface UpdateCampaignStatusRequest {
 }
 
 export interface AddGoalToCampaignRequest {
+  title: string; // Changed to title
   description: string;
-  metric: string;
-  targetValue: number;
-  currentValue: number;
 }
 
 export interface AddChannelToCampaignRequest {

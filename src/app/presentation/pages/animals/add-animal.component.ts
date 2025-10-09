@@ -18,7 +18,7 @@ import { CreateAnimalRequest } from '@shared/models/animal.model';
               <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.42-1.41L7.83 13H20v-2z"/>
             </svg>
           </button>
-          <h1 class="add-title">Add New Animal</h1>
+          <h1 class="add-title">Add New Bovine</h1>
         </div>
 
         <div class="add-form-card">
@@ -47,18 +47,6 @@ import { CreateAnimalRequest } from '@shared/models/animal.model';
 
             <div class="form-row">
               <div class="form-group">
-                <label for="weight">Weight (kg) *</label>
-                <input 
-                  type="number" 
-                  id="weight"
-                  class="form-input" 
-                  [(ngModel)]="animalRequest.weight"
-                  name="weight"
-                  required
-                  min="1">
-              </div>
-
-              <div class="form-group">
                 <label for="gender">Gender *</label>
                 <select 
                   id="gender"
@@ -67,60 +55,49 @@ import { CreateAnimalRequest } from '@shared/models/animal.model';
                   name="gender"
                   required>
                   <option value="">Select gender</option>
-                  <option value="female">Female</option>
-                  <option value="male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
                 </select>
               </div>
-            </div>
-
-            <div class="form-group">
-              <label for="birthdate">Birth Date *</label>
-              <input 
-                type="date" 
-                id="birthdate"
-                class="form-input" 
-                [(ngModel)]="birthdateString"
-                name="birthdate"
-                required>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="barn">Barn *</label>
-                <input 
-                  type="text" 
-                  id="barn"
-                  class="form-input" 
-                  [(ngModel)]="animalRequest.barn"
-                  name="barn"
-                  required>
-              </div>
 
               <div class="form-group">
-                <label for="location">Location *</label>
+                <label for="birthDate">Birth Date *</label>
                 <input 
-                  type="text" 
-                  id="location"
+                  type="date" 
+                  id="birthDate"
                   class="form-input" 
-                  [(ngModel)]="animalRequest.location"
-                  name="location"
+                  [(ngModel)]="birthDateString"
+                  name="birthDate"
                   required>
               </div>
             </div>
 
             <div class="form-group">
-              <label for="campaign">Campaign *</label>
+              <label for="location">Location *</label>
               <input 
                 type="text" 
-                id="campaign"
+                id="location"
                 class="form-input" 
-                [(ngModel)]="animalRequest.campaign"
-                name="campaign"
+                [(ngModel)]="animalRequest.location"
+                name="location"
+                placeholder="e.g., Chiclayo"
                 required>
             </div>
 
             <div class="form-group">
-              <label for="imageFile">Animal Photo *</label>
+              <label for="stableId">Stable</label>
+              <input 
+                type="text" 
+                id="stableId"
+                class="form-input" 
+                value="Stable 1"
+                readonly
+                disabled>
+              <small class="form-help">Currently only Stable 1 is available</small>
+            </div>
+
+            <div class="form-group">
+              <label for="imageFile">Bovine Photo</label>
               <div class="file-input-container">
                 <input 
                   type="file" 
@@ -159,15 +136,19 @@ import { CreateAnimalRequest } from '@shared/models/animal.model';
               <button 
                 type="submit" 
                 class="btn btn-primary"
-                [disabled]="loading || animalForm.invalid || !selectedFile">
+                [disabled]="loading || animalForm.invalid">
                 <span *ngIf="loading">Adding...</span>
-                <span *ngIf="!loading">Add Animal</span>
+                <span *ngIf="!loading">Add Bovine</span>
               </button>
             </div>
           </form>
 
           <div class="error-message" *ngIf="errorMessage">
             {{ errorMessage }}
+          </div>
+
+          <div class="success-message" *ngIf="successMessage">
+            {{ successMessage }}
           </div>
         </div>
       </div>
@@ -359,6 +340,24 @@ import { CreateAnimalRequest } from '@shared/models/animal.model';
       font-size: 14px;
     }
 
+    .form-help {
+      color: #666;
+      font-size: 12px;
+      margin-top: 4px;
+      display: block;
+    }
+
+    .success-message {
+      background: #e8f5e8;
+      color: #2e7d32;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      border: 1px solid #c8e6c9;
+    }
+
     @media (max-width: 600px) {
       .add-animal-container {
         padding: 15px;
@@ -387,18 +386,16 @@ export class AddAnimalComponent {
   animalRequest: CreateAnimalRequest = {
     name: '',
     breed: '',
-    weight: 0,
-    birthdate: new Date(),
-    barn: '',
+    gender: '',
+    birthDate: new Date(),
     location: '',
-    campaign: '',
-    gender: 'female',
-    imageUrl: ''
+    stableId: 1 // Fixed to stable 1
   };
 
-  birthdateString = '';
+  birthDateString = '';
   loading = false;
   errorMessage = '';
+  successMessage = '';
   selectedFileName = '';
   imagePreview: string | null = null;
   selectedFile: File | null = null;
@@ -427,8 +424,8 @@ export class AddAnimalComponent {
     this.selectedFile = null;
     this.selectedFileName = '';
     this.imagePreview = null;
-    this.animalRequest.imageUrl = '';
-    
+    this.animalRequest.bovineImg = '';
+
     // Reset file input
     const fileInput = document.getElementById('imageFile') as HTMLInputElement;
     if (fileInput) {
@@ -448,40 +445,53 @@ export class AddAnimalComponent {
   async onSubmit(): Promise<void> {
     if (this.loading) return;
 
-    // Validate that an image is selected
-    if (!this.selectedFile) {
-      this.errorMessage = 'Please select an image for the animal.';
-      return;
+    // Convert date string to Date object
+    if (this.birthDateString) {
+      this.animalRequest.birthDate = new Date(this.birthDateString);
     }
 
-    // Convert date string to Date object
-    if (this.birthdateString) {
-      this.animalRequest.birthdate = new Date(this.birthdateString);
+    // Add the actual file to the request if selected
+    if (this.selectedFile) {
+      this.animalRequest.imageFile = this.selectedFile;
     }
 
     this.loading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     try {
-      // Convert file to base64 for storage (in a real app, you'd upload to a server)
-      const base64Image = await this.convertFileToBase64(this.selectedFile);
-      this.animalRequest.imageUrl = base64Image;
+      console.log('🐄 Creating bovine with data:', {
+        name: this.animalRequest.name,
+        breed: this.animalRequest.breed,
+        gender: this.animalRequest.gender,
+        birthDate: this.animalRequest.birthDate,
+        location: this.animalRequest.location,
+        stableId: this.animalRequest.stableId,
+        hasImageFile: !!this.animalRequest.imageFile
+      });
 
       this.animalService.createAnimal(this.animalRequest).subscribe({
         next: (animal) => {
           this.loading = false;
-          this.router.navigate(['/animals', animal.id]);
+          this.successMessage = `Bovine "${animal.name}" created successfully!`;
+
+          console.log('✅ Bovine created:', animal);
+
+          // Show success message for 2 seconds, then navigate
+          setTimeout(() => {
+            this.router.navigate(['/animals', animal.id]);
+          }, 2000);
         },
         error: (error) => {
           this.loading = false;
-          this.errorMessage = error.message || 'Failed to add animal. Please try again.';
-          console.error('Error creating animal:', error);
+          this.errorMessage = error.message || 'Failed to add bovine. Please try again.';
+          console.error('❌ Error creating bovine:', error);
         }
       });
     } catch (error) {
       this.loading = false;
-      this.errorMessage = 'Failed to process the image. Please try again.';
-      console.error('Error processing image:', error);
+      this.errorMessage = 'Failed to process the request. Please try again.';
+      console.error('❌ Error processing bovine creation:', error);
     }
   }
 

@@ -37,7 +37,7 @@ import { Animal } from '@shared/models/animal.model';
           <div class="animals-grid" *ngIf="!loading && !error && animals.length > 0">
             <div class="animal-card" 
                  *ngFor="let animal of animals" 
-                 (click)="viewAnimalDetails(animal.id)">
+                 (click)="viewAnimalDetails(animal.id!)">
               <div class="animal-image">
                 <img [src]="animal.imageUrl" [alt]="animal.name" />
               </div>

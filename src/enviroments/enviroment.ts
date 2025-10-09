@@ -1,3 +1,4 @@
 export const environment = {
-    apiUrl: 'https://vacappexpbackend-cahacmh4atbxd0g3.brazilsouth-01.azurewebsites.net'
+    production: false,
+    apiUrl: 'https://vacappexpbackend-cahacmh4atbxd0g3.brazilsouth-01.azurewebsites.net/api/v1'
 };

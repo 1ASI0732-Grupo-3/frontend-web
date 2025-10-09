@@ -3,7 +3,7 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../application/services/auth.service';
-import { MockBackendService } from '../../../../application/services/mock-backend.service';
+import { TokenService } from '../../../../application/services/token.service';
 import { LoginRequest } from '../../../../shared/models/user.model';
 
 @Component({
@@ -50,31 +50,43 @@ import { LoginRequest } from '../../../../shared/models/user.model';
 
           <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
             <div class="input-group">
-              <label for="email" class="input-label">Email Address</label>
+              <label for="userName" class="input-label">User Name</label>
               <input
-                id="email"
-                type="email"
+                id="userName"
+                type="text"
                 class="form-input"
-                placeholder="Enter your email"
-                [(ngModel)]="loginRequest.email"
-                name="email"
+                placeholder="Enter your username"
+                [(ngModel)]="loginRequest.userName"
+                name="userName"
                 required
-                email
-                #emailInput="ngModel">
+                #userNameInput="ngModel">
             </div>
 
             <div class="input-group">
               <label for="password" class="input-label">Password</label>
-              <input
-                id="password"
-                type="password"
-                class="form-input"
-                placeholder="Enter your password"
-                [(ngModel)]="loginRequest.password"
-                name="password"
-                required
-                minlength="6"
-                #passwordInput="ngModel">
+              <div class="password-wrapper">
+                <input
+                  id="password"
+                  [type]="showPassword ? 'text' : 'password'"
+                  class="form-input"
+                  placeholder="Enter your password"
+                  [(ngModel)]="loginRequest.password"
+                  name="password"
+                  required
+                  minlength="6"
+                  #passwordInput="ngModel">
+                <button
+                  type="button"
+                  class="toggle-password"
+                  (click)="togglePasswordVisibility()">
+                  <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.22A9.953 9.953 0 0012 4.5c2.21 0 4.21.74 5.83 1.98M3.98 15.78A9.953 9.953 0 0012 19.5c2.21 0 4.21-.74 5.83-1.98M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.22A9.953 9.953 0 0012 4.5c2.21 0 4.21.74 5.83 1.98M3.98 15.78A9.953 9.953 0 0012 19.5c2.21 0 4.21-.74 5.83-1.98M12 12l9.25 9.25M12 12L2.75 2.75" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div class="form-options">
@@ -102,15 +114,6 @@ import { LoginRequest } from '../../../../shared/models/user.model';
 
           <div class="error-message" *ngIf="errorMessage">
             {{ errorMessage }}
-          </div>
-
-          <!-- Botón de desarrollo muy discreto -->
-          <div class="dev-mode" *ngIf="errorMessage" style="text-align: center; margin-top: 10px;">
-            <small>
-              <a href="#" (click)="activateDevMode($event)" style="color: #666; font-size: 0.7rem; text-decoration: none;">
-                Dev Mode
-              </a>
-            </small>
           </div>
         </div>
       </div>
@@ -223,6 +226,34 @@ import { LoginRequest } from '../../../../shared/models/user.model';
       outline: none;
       border-color: #2d5a4f;
       box-shadow: 0 0 0 3px rgba(45, 90, 79, 0.1);
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toggle-password:hover {
+      color: #2d5a4f;
+    }
+
+    .icon {
+      width: 20px;
+      height: 20px;
     }
 
     .form-options {
@@ -339,17 +370,18 @@ import { LoginRequest } from '../../../../shared/models/user.model';
 })
 export class LoginComponent {
   loginRequest: LoginRequest = {
-    email: '',
+    userName: '',
     password: ''
   };
   
   loading = false;
   errorMessage = '';
+  showPassword = false;
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private mockBackend: MockBackendService
+    private tokenService: TokenService
   ) {}
 
   onSubmit(): void {
@@ -358,56 +390,33 @@ export class LoginComponent {
     this.loading = true;
     this.errorMessage = '';
 
-    // Si el modo mock está activo, usar el mock backend
-    if (this.mockBackend.isActive()) {
-      this.mockBackend.mockLogin(this.loginRequest).subscribe({
-        next: (response) => {
-          // Guardar token y usuario
-          localStorage.setItem('auth_token', response.token);
-          localStorage.setItem('user_info', JSON.stringify(response.user));
-          
-          this.loading = false;
-          this.router.navigate(['/dashboard']);
-        },
-        error: (error) => {
-          this.loading = false;
-          this.errorMessage = error.message || 'Mock login failed';
-        }
-      });
-      return;
-    }
+    console.log('🔐 Usando backend real para login');
 
-    // Usar el backend real
+    // Usar únicamente el backend real
     this.authService.login(this.loginRequest).subscribe({
-      next: (response) => {
+      next: (response: any) => {
+        console.log('✅ Login exitoso:', response);
+        // Guardar token y usuario
+        this.tokenService.setToken(response.token);
+        this.tokenService.setUser(response.user);
+
         this.loading = false;
         this.router.navigate(['/dashboard']);
       },
-      error: (error) => {
+      error: (error: any) => {
+        console.error('❌ Error en login:', error);
         this.loading = false;
-        this.errorMessage = error.message || 'Login failed. Please try again.';
+        this.errorMessage = error.message || 'Login failed. Please check your credentials.';
       }
     });
   }
 
-  forgotPassword(event: Event): void {
-    event.preventDefault();
-    console.log('Forgot password - Not implemented in demo');
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
-  activateDevMode(event: Event): void {
+  forgotPassword(event: Event): void {
     event.preventDefault();
-    
-    // Activar mock mode
-    this.mockBackend.setEnabled(true);
-    
-    // Llenar credenciales de prueba
-    this.loginRequest.email = 'admin@vacapp.com';
-    this.loginRequest.password = 'admin123';
-    
-    // Limpiar mensaje de error
-    this.errorMessage = '';
-    
-    console.log('🎭 Dev Mode activado - Credenciales cargadas automáticamente');
+    console.log('Forgot password - Not implemented');
   }
 }

@@ -1,48 +1,25 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
-import { DashboardRepository } from '@domain/repositories/dashboard.repository';
-import { DashboardStats, UpcomingEvent, EventType } from '@shared/models/dashboard.model';
+import { Observable } from 'rxjs';
+import { DashboardRepository } from '../../domain/repositories/dashboard.repository';
+import { DashboardStats, UpcomingEvent } from '../../shared/models/dashboard.model';
+import { DashboardService } from '../../application/services/dashboard.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardRepositoryImpl extends DashboardRepository {
 
+  constructor(private dashboardService: DashboardService) {
+    super();
+  }
+
   getStats(): Observable<DashboardStats> {
-    const stats: DashboardStats = {
-      registeredAnimals: 123,
-      campaigns: 4,
-      employees: 32,
-      vaccinesAboutToExpire: 10,
-      activeCampaigns: 6
-    };
-    
-    return of(stats).pipe(delay(500));
+    // Usar el servicio real que hace peticiones a tu backend
+    return this.dashboardService.getStats();
   }
 
   getUpcomingEvents(): Observable<UpcomingEvent[]> {
-    const events: UpcomingEvent[] = [
-      {
-        id: '1',
-        title: 'Foot and Mouth Disease Vaccination',
-        date: '10-May',
-        type: EventType.VACCINATION
-      },
-      {
-        id: '2',
-        title: 'Internal and External Deworming',
-        date: '05-July',
-        type: EventType.DEWORMING
-      },
-      {
-        id: '3',
-        title: 'Brucellosis Sanitation Campaign',
-        date: '23-August',
-        type: EventType.CAMPAIGN
-      }
-    ];
-    
-    return of(events).pipe(delay(500));
+    // Usar el servicio real que calcula eventos desde campañas reales
+    return this.dashboardService.getUpcomingEvents();
   }
 }

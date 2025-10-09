@@ -2,91 +2,99 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { AnimalRepository } from '@domain/repositories/animal.repository';
-import { 
+import { AnimalRepository } from '../../domain/repositories/animal.repository';
+import {
   Animal, 
   CreateAnimalRequest,
+  CreateAnimalApiRequest,
   Vaccination,
   Stable 
-} from '@shared/models/animal.model';
-import { environment } from '../../../enviroments/enviroment';
+} from '../../shared/models/animal.model';
+import { API_ENDPOINTS } from '../../shared/config/api-endpoints.config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AnimalRepositoryImpl extends AnimalRepository {
-  private readonly baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {
     super();
   }
 
   getAnimals(): Observable<Animal[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/animals`).pipe(
-      map(apiAnimals => apiAnimals.map(apiAnimal => this.mapApiAnimalToAnimal(apiAnimal))),
+    console.log('🐄 Fetching bovines from:', API_ENDPOINTS.ANIMALS.LIST);
+    return this.http.get<any[]>(API_ENDPOINTS.ANIMALS.LIST).pipe(
+      map(apiAnimals => {
+        console.log('✅ Bovines received:', apiAnimals);
+        return apiAnimals.map(apiAnimal => this.mapApiAnimalToAnimal(apiAnimal));
+      }),
       catchError(error => {
-        console.error('Error fetching animals:', error);
+        console.error('❌ Error fetching bovines:', error);
         return of([]);
       })
     );
   }
 
   getAnimalById(id: number): Observable<Animal> {
-    return this.http.get<any>(`${this.baseUrl}/animals/${id}`).pipe(
-      map(apiAnimal => this.mapApiAnimalToAnimal(apiAnimal)),
+    const url = API_ENDPOINTS.ANIMALS.DETAIL(id.toString());
+    console.log('🐄 Fetching bovine by ID from:', url);
+
+    return this.http.get<any>(url).pipe(
+      map(apiAnimal => {
+        console.log('✅ Bovine received:', apiAnimal);
+        return this.mapApiAnimalToAnimal(apiAnimal);
+      }),
       catchError(error => {
-        console.error('Error fetching animal:', error);
+        console.error('❌ Error fetching bovine:', error);
         throw error;
       })
     );
   }
 
   createAnimal(request: CreateAnimalRequest): Observable<Animal> {
-    // Convert request to API format and create multipart form data
+    console.log('🆕 Creating new bovine:', request);
+
+    // Create FormData for multipart/form-data request
     const formData = new FormData();
     formData.append('Name', request.name);
     formData.append('Gender', request.gender);
-    formData.append('BirthDate', request.birthdate.toISOString());
+    formData.append('BirthDate', request.birthDate.toISOString());
     formData.append('Breed', request.breed);
     formData.append('Location', request.location);
-    formData.append('StableId', '1'); // Default stable, will need to be dynamic
+    formData.append('StableId', request.stableId.toString());
 
-    // If imageUrl is provided as base64 or file
-    if (request.imageUrl) {
-      // Handle image upload - this will be implemented in the file upload section
-      // For now, skip image upload
+    // Add image file if provided - backend expects 'FileData' field
+    if (request.imageFile) {
+      formData.append('FileData', request.imageFile, request.imageFile.name);
     }
 
-    return this.http.post<any>(`${this.baseUrl}/animals`, formData).pipe(
-      map((apiResponse) => {
-        // Convert API response to frontend format
-        const animal: Animal = {
-          id: apiResponse.id,
-          name: apiResponse.name,
-          breed: apiResponse.breed,
-          gender: apiResponse.gender,
-          location: apiResponse.location,
-          birthDate: apiResponse.birthDate,
-          birthdate: new Date(apiResponse.birthDate), // For component compatibility
-          bovineImg: apiResponse.bovineImg,
-          imageUrl: apiResponse.bovineImg, // For component compatibility
-          stableId: apiResponse.stableId,
-          weight: request.weight,
-          campaign: request.campaign,
-          barn: request.barn,
-          age: this.calculateAge(apiResponse.birthDate),
-          createdAt: new Date()
-        };
-        return animal;
+    console.log('📤 Sending FormData with:', {
+      Name: request.name,
+      Gender: request.gender,
+      BirthDate: request.birthDate.toISOString(),
+      Breed: request.breed,
+      Location: request.location,
+      StableId: request.stableId,
+      hasImage: !!request.imageFile,
+      fileName: request.imageFile?.name
+    });
+
+    return this.http.post<any>(API_ENDPOINTS.ANIMALS.CREATE, formData).pipe(
+      map(response => {
+        console.log('✅ Bovine created:', response);
+        return this.mapApiAnimalToAnimal(response);
       }),
       catchError(error => {
-        console.error('Error creating animal:', error);
+        console.error('❌ Error creating bovine:', error);
         throw error;
       })
     );
   }
 
   updateAnimal(id: number, updates: Partial<Animal>): Observable<Animal> {
+    const url = API_ENDPOINTS.ANIMALS.UPDATE(id.toString());
+    console.log('🔄 Updating bovine:', id, updates);
+
     const formData = new FormData();
     
     if (updates.name) formData.append('Name', updates.name);
@@ -95,19 +103,28 @@ export class AnimalRepositoryImpl extends AnimalRepository {
     if (updates.location) formData.append('Location', updates.location);
     if (updates.stableId) formData.append('StableId', updates.stableId.toString());
 
-    return this.http.put<any>(`${this.baseUrl}/animals/${id}`, formData).pipe(
-      map(apiAnimal => this.mapApiAnimalToAnimal(apiAnimal)),
+    return this.http.put<any>(url, formData).pipe(
+      map(apiAnimal => {
+        console.log('✅ Bovine updated:', apiAnimal);
+        return this.mapApiAnimalToAnimal(apiAnimal);
+      }),
       catchError(error => {
-        console.error('Error updating animal:', error);
+        console.error('❌ Error updating bovine:', error);
         throw error;
       })
     );
   }
 
   deleteAnimal(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/animals/${id}`).pipe(
+    const url = API_ENDPOINTS.ANIMALS.DELETE(id.toString());
+    console.log('🗑️ Deleting bovine:', id);
+
+    return this.http.delete<void>(url).pipe(
+      map(() => {
+        console.log('✅ Bovine deleted successfully');
+      }),
       catchError(error => {
-        console.error('Error deleting animal:', error);
+        console.error('❌ Error deleting bovine:', error);
         throw error;
       })
     );
@@ -115,27 +132,47 @@ export class AnimalRepositoryImpl extends AnimalRepository {
 
   // Additional API methods
   getAnimalsByStable(stableId: number): Observable<Animal[]> {
-    return this.http.get<Animal[]>(`${this.baseUrl}/api/animals/stable/${stableId}`).pipe(
+    const url = API_ENDPOINTS.STABLES.LIST + `/${stableId}/animals`;
+    console.log('🏠 Fetching animals by stable from:', url);
+
+    return this.http.get<Animal[]>(url).pipe(
+      map(apiAnimals => {
+        console.log('✅ Animals by stable received:', apiAnimals);
+        return apiAnimals.map(apiAnimal => this.mapApiAnimalToAnimal(apiAnimal));
+      }),
       catchError(error => {
-        console.error('Error fetching animals by stable:', error);
+        console.error('❌ Error fetching animals by stable:', error);
         return of([]);
       })
     );
   }
 
   getVaccinations(animalId: number): Observable<Vaccination[]> {
-    return this.http.get<Vaccination[]>(`${this.baseUrl}/api/vaccinations/animal/${animalId}`).pipe(
+    const url = API_ENDPOINTS.VACCINES.LIST + `/animal/${animalId}`;
+    console.log('💉 Fetching vaccinations from:', url);
+
+    return this.http.get<Vaccination[]>(url).pipe(
+      map(vaccinations => {
+        console.log('✅ Vaccinations received:', vaccinations);
+        return vaccinations;
+      }),
       catchError(error => {
-        console.error('Error fetching vaccinations:', error);
+        console.error('❌ Error fetching vaccinations:', error);
         return of([]);
       })
     );
   }
 
   getStables(): Observable<Stable[]> {
-    return this.http.get<Stable[]>(`${this.baseUrl}/api/stables`).pipe(
+    console.log('🏠 Fetching stables from:', API_ENDPOINTS.STABLES.LIST);
+
+    return this.http.get<Stable[]>(API_ENDPOINTS.STABLES.LIST).pipe(
+      map(stables => {
+        console.log('✅ Stables received:', stables);
+        return stables;
+      }),
       catchError(error => {
-        console.error('Error fetching stables:', error);
+        console.error('❌ Error fetching stables:', error);
         return of([]);
       })
     );
@@ -148,11 +185,13 @@ export class AnimalRepositoryImpl extends AnimalRepository {
       breed: apiAnimal.breed,
       gender: apiAnimal.gender,
       location: apiAnimal.location,
-      birthDate: apiAnimal.birthDate,
-      birthdate: new Date(apiAnimal.birthDate), // For component compatibility
+      birthDate: apiAnimal.birthDate, // Keep as ISO string
       bovineImg: apiAnimal.bovineImg,
-      imageUrl: apiAnimal.bovineImg || '', // For component compatibility
       stableId: apiAnimal.stableId,
+
+      // For component compatibility
+      birthdate: new Date(apiAnimal.birthDate),
+      imageUrl: apiAnimal.bovineImg || '',
       weight: 500, // Default weight
       campaign: 'General', // Default campaign
       barn: 'Establo General', // Default barn

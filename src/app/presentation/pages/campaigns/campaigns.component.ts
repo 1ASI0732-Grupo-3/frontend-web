@@ -37,9 +37,9 @@ import { Campaign, CampaignStatus } from '@shared/models/campaign.model';
           <div class="campaigns-list" *ngIf="!loading && !error && campaigns.length > 0">
             <div class="campaign-card" 
                  *ngFor="let campaign of campaigns" 
-                 (click)="viewCampaignDetails(campaign.id)"
-                 [class.completed]="campaign.status === 'completed'"
-                 [class.scheduled]="campaign.status === 'scheduled'">
+                 (click)="viewCampaignDetails(campaign.id!)"
+                 [class.completed]="campaign.status === CampaignStatus.COMPLETED"
+                 [class.scheduled]="campaign.status === CampaignStatus.SCHEDULED">
               
               <div class="campaign-header">
                 <h3 class="campaign-name">{{ campaign.name }}</h3>
@@ -351,6 +351,9 @@ export class CampaignsComponent implements OnInit {
   loading = false;
   error = '';
   sidebarOpen = false;
+
+  // Expose CampaignStatus enum to template
+  CampaignStatus = CampaignStatus;
 
   constructor(
     private campaignService: CampaignService,

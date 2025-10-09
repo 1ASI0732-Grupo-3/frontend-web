@@ -4,22 +4,22 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { routes } from '@app/app.routes';
-import { AuthInterceptor } from '@app/infrastructure/interceptors/auth.interceptor';
+import { routes } from './app/app.routes';
+import { AuthInterceptor } from './app/infrastructure/interceptors/auth.interceptor';
 
 // Repository providers
-import { AuthRepository } from '@domain/repositories/auth.repository';
-import { DashboardRepository } from '@domain/repositories/dashboard.repository';
-import { PlansRepository } from '@domain/repositories/plans.repository';
-import { AnimalRepository } from '@domain/repositories/animal.repository';
-import { CampaignRepository } from '@domain/repositories/campaign.repository';
-import { InventoryRepository } from '@domain/repositories/inventory.repository';
-import { AuthRepositoryImpl } from '@repositories/auth.repository.impl';
-import { DashboardRepositoryImpl } from '@repositories/dashboard.repository.impl';
-import { PlansRepositoryImpl } from '@repositories/plans.repository.impl';
-import { AnimalRepositoryImpl } from '@repositories/animal.repository.impl';
-import { CampaignRepositoryImpl } from '@repositories/campaign.repository.impl';
-import { InventoryRepositoryImpl } from '@repositories/inventory.repository.impl';
+import { AuthRepository } from './app/domain/repositories/auth.repository';
+import { DashboardRepository } from './app/domain/repositories/dashboard.repository';
+import { PlansRepository } from './app/domain/repositories/plans.repository';
+import { AnimalRepository } from './app/domain/repositories/animal.repository';
+import { CampaignRepository } from './app/domain/repositories/campaign.repository';
+import { InventoryRepository } from './app/domain/repositories/inventory.repository';
+import { AuthRepositoryImpl } from './app/infrastructure/repositories/auth.repository.impl';
+import { DashboardRepositoryImpl } from './app/infrastructure/repositories/dashboard.repository.impl';
+import { PlansRepositoryImpl } from './app/infrastructure/repositories/plans.repository.impl';
+import { AnimalRepositoryImpl } from './app/infrastructure/repositories/animal.repository.impl';
+import { CampaignRepositoryImpl } from './app/infrastructure/repositories/campaign.repository.impl';
+import { InventoryRepositoryImpl } from './app/infrastructure/repositories/inventory.repository.impl';
 
 @Component({
   selector: 'app-root',
